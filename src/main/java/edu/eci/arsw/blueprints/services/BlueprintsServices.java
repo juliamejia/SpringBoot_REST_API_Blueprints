@@ -1,57 +1,75 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Este paquete pertenece al proyecto de servicios para blueprints.
  */
 package edu.eci.arsw.blueprints.services;
 
 import edu.eci.arsw.blueprints.model.Blueprint;
 import edu.eci.arsw.blueprints.model.Point;
 import edu.eci.arsw.blueprints.persistence.BlueprintNotFoundException;
+import edu.eci.arsw.blueprints.persistence.BlueprintPersistenceException;
 import edu.eci.arsw.blueprints.persistence.BlueprintsPersistence;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
+ * Esta clase representa los servicios relacionados con los blueprints.
  *
  * @author hcadavid
  */
 @Service
 public class BlueprintsServices {
-   
+
     @Autowired
-    BlueprintsPersistence bpp=null;
-    
-    public void addNewBlueprint(Blueprint bp){
-        
-    }
-    
-    public Set<Blueprint> getAllBlueprints(){
-        return null;
-    }
-    
+    @Qualifier("Memory")
+    BlueprintsPersistence bpp = null;
+
     /**
-     * 
-     * @param author blueprint's author
-     * @param name blueprint's name
-     * @return the blueprint of the given name created by the given author
-     * @throws BlueprintNotFoundException if there is no such blueprint
+     * Agrega un nuevo blueprint.
+     *
+     * @param bp El blueprint a agregar.
+     * @throws BlueprintPersistenceException Si ocurre un error al guardar el blueprint.
      */
-    public Blueprint getBlueprint(String author,String name) throws BlueprintNotFoundException{
-        throw new UnsupportedOperationException("Not supported yet."); 
+    public void addNewBlueprint(Blueprint bp) throws BlueprintPersistenceException {
+        bpp.saveBlueprint(bp);
     }
-    
+
     /**
-     * 
-     * @param author blueprint's author
-     * @return all the blueprints of the given author
-     * @throws BlueprintNotFoundException if the given author doesn't exist
+     * Obtiene todos los blueprints disponibles.
+     *
+     * @return Un conjunto de todos los blueprints.
+     * @throws BlueprintNotFoundException Si no se encuentran blueprints.
+     * @throws BlueprintPersistenceException Si ocurre un error en la persistencia de los blueprints.
      */
-    public Set<Blueprint> getBlueprintsByAuthor(String author) throws BlueprintNotFoundException{
-        throw new UnsupportedOperationException("Not supported yet."); 
+    public Set<Blueprint> getAllBlueprints() throws BlueprintNotFoundException, BlueprintPersistenceException {
+        return bpp.getBluePrints();
     }
-    
+
+
+    /**
+     * Obtiene un blueprint específico por autor y nombre.
+     *
+     * @param author El autor del blueprint.
+     * @param name El nombre del blueprint.
+     * @return El blueprint correspondiente al autor y nombre especificados.
+     * @throws BlueprintNotFoundException Si no existe el blueprint especificado.
+     */
+    public Blueprint getBlueprint(String author, String name) throws BlueprintNotFoundException {
+        return bpp.getBlueprint(author, name);
+    }
+
+    /**
+     * Obtiene todos los blueprints de un autor específico.
+     *
+     * @param author El autor de los blueprints.
+     * @return Un conjunto de blueprints del autor especificado.
+     * @throws BlueprintNotFoundException Si el autor especificado no existe.
+     * @throws BlueprintPersistenceException Si ocurre un error en la persistencia de los blueprints.
+     */
+    public Set<Blueprint> getBlueprintsByAuthor(String author) throws BlueprintNotFoundException, BlueprintPersistenceException {
+        return bpp.getBlueprintsByAuthor(author);
+    }
 }
