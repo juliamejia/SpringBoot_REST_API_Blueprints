@@ -135,8 +135,95 @@ En este ejercicio se va a construír un modelo de clases para la capa lógica de
    <img width="886" alt="image" src="https://github.com/juliamejia/SpringBoot_REST_API_Blueprints/assets/98657146/495ad6d6-6e3a-4dab-b8f2-c1942ca3599a">  
 
 
-5. Se quiere que las operaciones de consulta de planos realicen un proceso de filtrado, antes de retornar los planos consultados. Dichos filtros lo que buscan es reducir el tamaño de los planos, removiendo datos redundantes o simplemente submuestrando, antes de retornarlos. Ajuste la aplicación (agregando las abstracciones e implementaciones que considere) para que a la clase BlueprintServices se le inyecte uno de dos posibles 'filtros' (o eventuales futuros filtros). No se contempla el uso de más de uno a la vez:
-	* (A) Filtrado de redundancias: suprime del plano los puntos consecutivos que sean repetidos.
-	* (B) Filtrado de submuestreo: suprime 1 de cada 2 puntos del plano, de manera intercalada.
+4. Se quiere que las operaciones de consulta de planos realicen un proceso de filtrado, antes de retornar los planos consultados. Dichos filtros lo que buscan es reducir el tamaño de los planos, removiendo datos redundantes o simplemente submuestrando, antes de retornarlos. Ajuste la aplicación (agregando las abstracciones e implementaciones que considere) para que a la clase BlueprintServices se le inyecte uno de dos posibles 'filtros' (o eventuales futuros filtros). No se contempla el uso de más de uno a la vez:
+	* (A) Filtrado de redundancias: suprime del plano los puntos consecutivos que sean repetidos.  
+	Se crea la clase FilterRedundancy
 
-6. Agrege las pruebas correspondientes a cada uno de estos filtros, y pruebe su funcionamiento en el programa de prueba, comprobando que sólo cambiando la posición de las anotaciones -sin cambiar nada más-, el programa retorne los planos filtrados de la manera (A) o de la manera (B). 
+	```java
+	@Component
+	@Qualifier("Redundancy")
+	public class FilterRedundancy implements FilterType {
+	    // Método para revisar y eliminar puntos redundantes en un plano
+	    public void review(Blueprint bp, Point point){
+	        List<Point> points = new ArrayList<Point>(bp.getPoints());
+	        for(int i = 0; i <= points.size() - 1; i++){
+	            if(point.equals(points.get(i))){
+	                points.remove(i); // Si el punto es igual a otro, lo elimina para eliminar la redundancia
+	            }
+	        }
+	        points.add(point); // Agrega el punto al plano sin redundancia
+	        bp.setPoints(points); // Establece la lista de puntos sin redundancia en el plano
+	    }
+	
+	    @Override
+	    public void filterBlueprint(Blueprint bp) throws BlueprintNotFoundException {
+	        for(Point point : bp.getPoints()){
+	            review(bp, point); // Aplica la revisión de redundancia a cada punto del plano
+	        }
+	    }
+	
+	    @Override
+	    public void filterBlueprints(Set<Blueprint> blueprints) throws BlueprintPersistenceException, BlueprintNotFoundException {
+	        for(Blueprint print : blueprints){
+	            filterBlueprint(print); // Aplica la revisión de redundancia a cada plano en el conjunto
+	        }
+	    }
+	
+	    @Override
+	    public void filterPrintsByAuthor(String author, Set<Blueprint> blueprints) throws BlueprintNotFoundException {
+	        for(Blueprint print : blueprints){
+	            if(print.getAuthor().equals(author)){
+	                filterBlueprint(print); // Aplica la revisión de redundancia solo a los planos del autor especificado
+	            }
+	        }
+	    }
+	}
+	```
+	
+	* (B) Filtrado de submuestreo: suprime 1 de cada 2 puntos del plano, de manera intercalada.  
+	Se crea la clase FilterSub
+
+	```java
+	@Component
+	// La anotación @Qualifier se utiliza para calificar este componente con un nombre específico.
+	@Qualifier("Sub")
+	public class FilterSub implements FilterType {
+	
+	    @Override
+	    public void filterBlueprint(Blueprint bp) throws BlueprintNotFoundException {
+	        // Este método filtra los puntos de un Blueprint dejando solo los puntos en índices impares.
+	        List<Point> points = new ArrayList<Point>(bp.getPoints()); // Copia la lista de puntos del Blueprint.
+	        List<Point> pointsFilter = new ArrayList<Point>(); // Crear una nueva lista para almacenar los puntos filtrados.
+	
+	        int size = points.size();
+	        for (int i = 0; i < points.size(); i++) {
+	            if (i % 2 == 1) { // Si el índice es impar, agregar el punto a la lista de puntos filtrados.
+	                pointsFilter.add(points.get(i));
+	            }
+	        }
+	        bp.setPoints(pointsFilter); // Establece la lista de puntos filtrados en el Blueprint original.
+	    }
+	
+	    @Override
+	    public void filterBlueprints(Set<Blueprint> blueprints) throws BlueprintPersistenceException, BlueprintNotFoundException {
+	        // Este método aplica el filtro a una colección de Blueprints.
+	        for (Blueprint print : blueprints) {
+	            filterBlueprint(print); // Llama al método anterior para filtrar cada Blueprint en la colección.
+	        }
+	    }
+	
+	    @Override
+	    public void filterPrintsByAuthor(String author, Set<Blueprint> blueprints) throws BlueprintNotFoundException {
+	        // Este método filtra los Blueprints en función del autor.
+	        for (Blueprint print : blueprints) {
+	            if (print.getAuthor().equals(author)) { // Si el autor coincide, aplicar el filtro.
+	                filterBlueprint(print);
+	            }
+	        }
+	    }
+	}
+	```
+
+5. Agrege las pruebas correspondientes a cada uno de estos filtros, y pruebe su funcionamiento en el programa de prueba, comprobando que sólo cambiando la posición de las anotaciones -sin cambiar nada más-, el programa retorne los planos filtrados de la manera (A) o de la manera (B).  
+   <img width="561" alt="image" src="https://github.com/juliamejia/SpringBoot_REST_API_Blueprints/assets/98657146/ee140bff-d517-4b0f-94f1-7ea251afc7a6">
+
