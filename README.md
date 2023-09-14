@@ -116,7 +116,24 @@ En este ejercicio se va a construír un modelo de clases para la capa lógica de
 		<img width="549" alt="image" src="https://github.com/juliamejia/SpringBoot_REST_API_Blueprints/assets/98657146/c9b44f66-2580-4cd5-af25-cd1a66181ca1">
 
 
-4. Haga un programa en el que cree (mediante Spring) una instancia de BlueprintServices, y rectifique la funcionalidad del mismo: registrar planos, consultar planos, registrar planos específicos, etc.
+3. Haga un programa en el que cree (mediante Spring) una instancia de BlueprintServices, y rectifique la funcionalidad del mismo: registrar planos, consultar planos, registrar planos específicos, etc.
+   Creamos la clase Main con la anotacion @SpringBootApplication para marcar y autoconfigurar la clase principal como un sprongBoot  
+
+   ```java
+   	@SpringBootApplication
+	public class Main implements CommandLineRunner {
+    		@Autowired
+    		BlueprintsServices services;
+	    public static void main(String[] args) {
+	        SpringApplication.run(Main.class,args);
+    		}
+   ```
+
+   Probamos las funcionalidades  
+   <img width="438" alt="image" src="https://github.com/juliamejia/SpringBoot_REST_API_Blueprints/assets/98657146/e0cf9b33-9668-48ef-a58e-5b95c0bc32ca">  
+   <img width="244" alt="image" src="https://github.com/juliamejia/SpringBoot_REST_API_Blueprints/assets/98657146/8f142e1f-3ecb-432d-b0bb-870cff64b0de">  
+   <img width="886" alt="image" src="https://github.com/juliamejia/SpringBoot_REST_API_Blueprints/assets/98657146/495ad6d6-6e3a-4dab-b8f2-c1942ca3599a">  
+
 
 5. Se quiere que las operaciones de consulta de planos realicen un proceso de filtrado, antes de retornar los planos consultados. Dichos filtros lo que buscan es reducir el tamaño de los planos, removiendo datos redundantes o simplemente submuestrando, antes de retornarlos. Ajuste la aplicación (agregando las abstracciones e implementaciones que considere) para que a la clase BlueprintServices se le inyecte uno de dos posibles 'filtros' (o eventuales futuros filtros). No se contempla el uso de más de uno a la vez:
 	* (A) Filtrado de redundancias: suprime del plano los puntos consecutivos que sean repetidos.
